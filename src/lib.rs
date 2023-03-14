@@ -1,4 +1,4 @@
-mod open_ai_api {
+pub mod open_ai_api {
 
     #[derive(Debug)]
     pub struct Client {
@@ -6,9 +6,21 @@ mod open_ai_api {
     }
 
     impl Client {
+        /// Creates a new Client given a secret API key
+        pub fn new(key: String) -> Self {
+            let config = Config {
+                key,
+                organization: None,
+            };
+
+            Client { config }
+        }
         /// Creates a new Client given an organization and the secret API key
-        pub fn new(organization: String, key: String) -> Self {
-            let config = Config { key, organization };
+        pub fn new_with_org(key: String, organization: String) -> Self {
+            let config = Config {
+                key,
+                organization: Some(organization),
+            };
 
             Client { config }
         }
@@ -17,7 +29,7 @@ mod open_ai_api {
     #[derive(Debug)]
     pub struct Config {
         pub key: String,
-        pub organization: String,
+        pub organization: Option<String>,
     }
 }
 
@@ -27,20 +39,9 @@ mod tests {
 
     #[test]
     fn test_config_creation() {
-        let org = String::from("orgstring");
         let key = String::from("keystring");
-        let client = open_ai_api::Client::new(org, key);
+        let client = open_ai_api::Client::new(key);
 
         println!("{:?}", client);
-    }
-
-    #[test]
-    fn test_config_org_and_key_validation() {
-        let org = String::from("orgstring");
-        let key = String::from("keystring");
-        let client = open_ai_api::Client::new(org, key);
-
-        assert_eq!(client.config.key, String::from("keystring"));
-        assert_eq!(client.config.organization, String::from("orgstring"));
     }
 }
