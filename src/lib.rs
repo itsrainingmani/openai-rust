@@ -1,4 +1,6 @@
 mod open_ai_api {
+
+    #[derive(Debug)]
     pub struct Client {
         pub config: Config,
     }
@@ -12,18 +14,11 @@ mod open_ai_api {
         }
     }
 
+    #[derive(Debug)]
     pub struct Config {
         pub key: String,
         pub organization: String,
     }
-
-    struct Models {}
-
-    struct Completions {}
-}
-
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
 }
 
 #[cfg(test)]
@@ -35,7 +30,8 @@ mod tests {
         let org = String::from("orgstring");
         let key = String::from("keystring");
         let client = open_ai_api::Client::new(org, key);
-        assert_eq!(client.config.key, String::from("keystring"));
+
+        println!("{:?}", client);
     }
 
     #[test]
@@ -43,6 +39,8 @@ mod tests {
         let org = String::from("orgstring");
         let key = String::from("keystring");
         let client = open_ai_api::Client::new(org, key);
+
         assert_eq!(client.config.key, String::from("keystring"));
+        assert_eq!(client.config.organization, String::from("orgstring"));
     }
 }
