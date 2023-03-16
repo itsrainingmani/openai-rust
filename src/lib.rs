@@ -1,4 +1,11 @@
 pub mod open_ai_api {
+    use std::collections::HashMap;
+
+    #[derive(Debug)]
+    pub struct Config {
+        pub key: String,
+        pub organization: Option<String>,
+    }
 
     #[derive(Debug)]
     pub struct Client {
@@ -15,6 +22,7 @@ pub mod open_ai_api {
 
             Client { config }
         }
+
         /// Creates a new Client given an organization and the secret API key
         pub fn new_with_org(key: String, organization: String) -> Self {
             let config = Config {
@@ -24,12 +32,16 @@ pub mod open_ai_api {
 
             Client { config }
         }
-    }
 
-    #[derive(Debug)]
-    pub struct Config {
-        pub key: String,
-        pub organization: Option<String>,
+        #[tokio::main]
+        pub async fn authenticate(&self) -> Result<(), Box<dyn std::error::Error>> {
+            let resp = reqwest::get("https://httpbin.org/ip")
+                .await?
+                .json::<HashMap<String, String>>()
+                .await?;
+            println!("{:#?}", resp);
+            Ok(())
+        }
     }
 }
 
