@@ -1,6 +1,8 @@
 // use serde::{Deserialize, Serialize};
 // use serde_json::json;
 
+use chrono::serde::ts_seconds_option;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -13,6 +15,8 @@ pub struct ModelList {
 pub struct Model {
     id: String,
     object: String,
+    #[serde(with = "ts_seconds_option")]
+    created: Option<DateTime<Utc>>,
     owned_by: String,
     permission: PermissionList,
     root: String,
@@ -23,6 +27,8 @@ pub struct Model {
 pub struct Permission {
     id: String,
     object: String,
+    #[serde(with = "ts_seconds_option")]
+    created: Option<DateTime<Utc>>,
     allow_create_engine: bool,
     allow_sampling: bool,
     allow_logprobs: bool,
