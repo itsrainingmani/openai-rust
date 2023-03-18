@@ -22,7 +22,7 @@ fn test_config_from_env() {
 }
 
 #[test]
-fn test_models() {
+fn test_list_of_models() {
     common::setup();
 
     let key = std::env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
