@@ -1,3 +1,7 @@
+mod object;
+
+use object::{Model, ModelList};
+
 use reqwest::{
     self,
     header::{self, HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -54,9 +58,15 @@ impl Client {
     }
 
     #[tokio::main]
-    pub async fn get_models(&self) -> Result<String, Box<dyn std::error::Error>> {
+    pub async fn get_models(&self) -> Result<ModelList, Box<dyn std::error::Error>> {
         let model_url = String::from("https://api.openai.com/v1/models");
-        Ok(self.http_client.get(model_url).send().await?.text().await?)
+        Ok(self
+            .http_client
+            .get(model_url)
+            .send()
+            .await?
+            .json::<ModelList>()
+            .await?)
     }
 }
 
