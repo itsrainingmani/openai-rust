@@ -1,7 +1,7 @@
-mod construct;
-mod error;
+pub mod construct;
+pub mod error;
 
-use construct::{Model, ModelList};
+use construct::{CompletionParams, Model, ModelList, OptParams};
 use error::{OpenAIError, OpenAIResult};
 use reqwest::{
     self,
@@ -25,6 +25,8 @@ pub struct Client {
 
 impl Client {
     /// Creates a new Client given a secret API key
+    ///
+    /// This function will panic if there isn't a valid TLS Backend / Resolver cannot load system config
     pub fn new(key: String) -> Self {
         let mut headers = HeaderMap::new();
         let auth_token = format!("Bearer {}", key);
@@ -57,6 +59,15 @@ impl Client {
         cl
     }
 
+    /// Lists the currently available models, and provides basic information about each one such as the owner and availability.
+    ///
+    /// The Model vector is accessible through the "data" field
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if -
+    /// * _the requested endpoint is not available_
+    /// * _deserialization of JSON response data fails_
     #[tokio::main]
     pub async fn get_models(&self) -> OpenAIResult<ModelList> {
         let model_url = String::from("https://api.openai.com/v1/models");
@@ -73,6 +84,14 @@ impl Client {
         }
     }
 
+    /// Retrieves a model instance, providing basic information about the model such as the owner and permissioning
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if -
+    /// * _the requested model doesn't exist_
+    /// * _endpoint is unavailable_
+    /// * _deserialization of JSON Model data fails_
     #[tokio::main]
     pub async fn get_model_info(&self, model: String) -> OpenAIResult<Model> {
         let model_url = format!("https://api.openai.com/v1/models/{}", model);
@@ -86,6 +105,29 @@ impl Client {
                 status_code: resp.status().to_string(),
                 message: format!("Model - {}", model),
                 url: model_url,
+            }),
+        }
+    }
+
+    #[tokio::main]
+    pub async fn create_completion(&self, completion_params: CompletionParams) -> OpenAIResult<()> {
+        let completion_url = String::from("https://api.openai.com/v1/completions");
+
+        let completion_body = serde_json::to_string(&completion_params)?;
+
+        let resp = self
+            .http_client
+            .post(completion_url.clone())
+            .body(completion_body)
+            .send()
+            .await?;
+
+        match resp.status() {
+            StatusCode::OK => todo!(),
+            _ => Err(OpenAIError::APIError {
+                status_code: resp.status().to_string(),
+                message: format!("Completion"),
+                url: completion_url,
             }),
         }
     }
