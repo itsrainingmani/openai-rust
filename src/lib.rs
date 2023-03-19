@@ -2,14 +2,12 @@ mod construct;
 mod error;
 
 use construct::{Model, ModelList};
-
-use error::AIResult;
+use error::{OpenAIError, OpenAIResult};
 use reqwest::{
     self,
-    header::{self, HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE},
-    ClientBuilder,
+    header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE},
+    ClientBuilder, StatusCode,
 };
-use std::{collections::HashMap, fmt::Debug};
 
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
@@ -60,15 +58,36 @@ impl Client {
     }
 
     #[tokio::main]
-    pub async fn get_models(&self) -> AIResult<ModelList> {
+    pub async fn get_models(&self) -> OpenAIResult<ModelList> {
         let model_url = String::from("https://api.openai.com/v1/models");
-        Ok(self
-            .http_client
-            .get(model_url)
-            .send()
-            .await?
-            .json::<ModelList>()
-            .await?)
+
+        let resp = self.http_client.get(model_url.clone()).send().await?;
+
+        match resp.status() {
+            StatusCode::OK => Ok(resp.json::<ModelList>().await?),
+            _ => Err(OpenAIError::APIError {
+                status_code: resp.status().to_string(),
+                message: String::from("Model List"),
+                url: model_url,
+            }),
+        }
+    }
+
+    #[tokio::main]
+    pub async fn get_model_info(&self, model: String) -> OpenAIResult<Model> {
+        let model_url = format!("https://api.openai.com/v1/models/{}", model);
+
+        // Break out Response into the sending request part and the parsing Json part
+        let resp = self.http_client.get(model_url.clone()).send().await?;
+
+        match resp.status() {
+            StatusCode::OK => Ok(resp.json::<Model>().await?),
+            _ => Err(OpenAIError::APIError {
+                status_code: resp.status().to_string(),
+                message: format!("Model - {}", model),
+                url: model_url,
+            }),
+        }
     }
 }
 

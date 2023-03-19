@@ -14,19 +14,37 @@ fn test_config_org_and_key_validation() {
 
 #[test]
 fn test_config_from_env() {
-    common::setup();
-    let key = std::env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
-
-    let client = openai_rust::Client::new(key);
+    let client = common::setup();
     assert_ne!(client.config.openai_secret_key.len(), 0);
 }
 
 #[test]
 fn test_list_of_models() {
-    common::setup();
+    let client = common::setup();
+    let resp = client.get_models();
 
-    let key = std::env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
-    let client = openai_rust::Client::new(key);
+    // println!("{:?}", resp.unwrap());
 
-    println!("{:?}", client.get_models().unwrap());
+    assert!(resp.is_ok());
+}
+
+#[test]
+fn test_get_existing_model() {
+    let client = common::setup();
+    let resp = client.get_model_info(String::from("text-davinci-003"));
+
+    assert!(resp.is_ok());
+}
+
+#[test]
+fn test_invalid_model() {
+    let client = common::setup();
+    let resp = client.get_model_info(String::from("chatgpt"));
+
+    // println!("{}", resp.unwrap_err().to_string());
+
+    assert_eq!(
+        "Request returned with Status: 404 Not Found for Model - chatgpt \n URL: https://api.openai.com/v1/models/chatgpt",
+        resp.unwrap_err().to_string()
+    )
 }
