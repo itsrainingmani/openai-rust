@@ -1,24 +1,19 @@
-use reqwest::Error as ReqError;
-use serde_json::Error as SerdeError;
+use thiserror::Error;
 
-pub type AIResult<T> = Result<T, Error>;
+pub type OpenAIResult<T> = Result<T, OpenAIError>;
 
-#[derive(Debug)]
-pub enum Error {
-    Network(ReqError),
-    Parse(SerdeError),
-    RateLimit(f32), // TODO: Figure out how to return this error
-}
-
-impl From<ReqError> for Error {
-    fn from(e: ReqError) -> Self {
-        // Strip the URL
-        Error::Network(e.without_url())
-    }
-}
-
-impl From<SerdeError> for Error {
-    fn from(e: SerdeError) -> Self {
-        Error::Parse(e)
-    }
+#[derive(Error, Debug)]
+pub enum OpenAIError {
+    #[error("Request returned with Status: {status_code} for {query_type} - {item_type}")]
+    URLNotFound {
+        status_code: String,
+        query_type: String,
+        item_type: String,
+    },
+    #[error("Unable to process request")]
+    RequestError(#[from] reqwest::Error),
+    #[error("Unable to parse response into valid JSON")]
+    ParseError(#[from] serde_json::Error),
+    #[error("Other Error happened")]
+    OtherError,
 }
