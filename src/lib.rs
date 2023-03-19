@@ -1,7 +1,9 @@
-mod object;
+mod construct;
+mod error;
 
-use object::{Model, ModelList};
+use construct::{Model, ModelList};
 
+use error::AIResult;
 use reqwest::{
     self,
     header::{self, HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -37,7 +39,7 @@ impl Client {
             .default_headers(headers)
             .user_agent(APP_USER_AGENT)
             .build()
-            .unwrap();
+            .expect("Expected a valid TLS Backend / Resolver");
 
         let config = Config {
             openai_secret_key: key,
@@ -58,7 +60,7 @@ impl Client {
     }
 
     #[tokio::main]
-    pub async fn get_models(&self) -> Result<ModelList, Box<dyn std::error::Error>> {
+    pub async fn get_models(&self) -> AIResult<ModelList> {
         let model_url = String::from("https://api.openai.com/v1/models");
         Ok(self
             .http_client
