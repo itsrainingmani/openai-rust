@@ -1,7 +1,13 @@
 [package]
 name = "openai-rust"
 version = "0.1.0"
+authors = ["Mani Sundararajan"]
 edition = "2021"
+description = "Wrapper Library for the OpenAI API written in Rust"
+repository = "https://github.com/itsrainingmani/openai-rust"
+license = "MIT"
+keywords = ["openai", "api", "wrapper", "rust"]
+categories = ["api-bindings"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
