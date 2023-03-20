@@ -32,7 +32,7 @@ fn test_completion_serialization() {
         prompt: String::from("Say this is a test"),
         max_tokens: 7,
         temperature: 0.0,
-        // opts: OptParams::default(),
+        opts: OptParams::default(),
     };
 
     let completion_serialized = serde_json::to_string(&completion_params).unwrap();

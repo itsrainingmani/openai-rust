@@ -63,8 +63,8 @@ pub struct CompletionParams {
     pub max_tokens: usize,
     // #[serde(serialize_with = "float_to_usize")]
     pub temperature: f32,
-    // #[serde(flatten)]
-    // pub opts: OptParams,
+    #[serde(flatten)]
+    pub opts: OptParams,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

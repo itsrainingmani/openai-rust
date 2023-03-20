@@ -1,7 +1,7 @@
 pub mod construct;
 pub mod error;
 
-use construct::{CompletionParams, Model, ModelList, OptParams};
+use construct::{CompletionParams, Model, ModelList};
 use error::{OpenAIError, OpenAIResult};
 use reqwest::{
     self,
