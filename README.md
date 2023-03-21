@@ -1,6 +1,7 @@
 # OpenAI-Rust
 
-![test-status](https://github.com/itsrainingmani/openai-rust/actions/workflows/test.yml/badge.svg)
+![unit-test-status](https://github.com/itsrainingmani/openai-rust/actions/workflows/test.yml/badge.svg)
+![integration-test-status](https://github.com/itsrainingmani/openai-rust/actions/workflows/integration.yml/badge.svg)
 
 An Wrapper library for the OpenAI API written in Rust
 
@@ -8,8 +9,8 @@ An Wrapper library for the OpenAI API written in Rust
 
 - [x] List Models
 - [x] Retrieve Model
-- [x] Create Completion
-- [ ] Create Chat completion | _in progress_
+- [ ] Create Completion | _in progress_
+- [ ] Create Chat completion
 - [ ] Create Edit
 - [ ] Create Image
 
