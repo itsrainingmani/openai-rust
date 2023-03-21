@@ -56,46 +56,30 @@ pub struct Usage {
     pub completion_tokens: u16,
     pub total_tokens: u16,
 }
-#[derive(Serialize, Deserialize, Debug)]
-pub struct CompletionParams {
-    pub model: String,
-    pub prompt: String,
-    pub max_tokens: usize,
-    // #[serde(serialize_with = "float_to_usize")]
-    pub temperature: f32,
-    #[serde(flatten)]
-    pub opts: OptParams,
-}
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct OptParams {
-    pub suffix: Option<String>,
-    pub top_p: f32,
-    pub n: usize,
-    pub stream: bool,
-    pub logprobs: Option<usize>,
-    pub echo: bool,
-    pub stop: Option<String>,
-    pub presence_penalty: f32,
-    pub frequency_penalty: f32,
-    pub best_of: usize,
-    pub user: Option<String>,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-impl Default for OptParams {
-    fn default() -> Self {
-        Self {
-            suffix: None,
-            top_p: 1.0,
-            n: 1,
-            stream: false,
-            logprobs: None,
-            echo: false,
-            stop: None,
-            presence_penalty: 0.0,
-            frequency_penalty: 0.0,
-            best_of: 1,
-            user: None,
-        }
+    #[test]
+    fn test_usage_deserialization() {
+        let usage_data = r#"
+    {
+        "prompt_tokens": 5,
+        "completion_tokens": 7,
+        "total_tokens": 12
+    }
+        "#;
+
+        let deserialized_usage_data: Usage = serde_json::from_str(usage_data).unwrap();
+
+        assert_eq!(
+            vec![
+                deserialized_usage_data.prompt_tokens,
+                deserialized_usage_data.completion_tokens,
+                deserialized_usage_data.total_tokens
+            ],
+            vec![5, 7, 12]
+        );
     }
 }
