@@ -111,6 +111,14 @@ impl Client {
         }
     }
 
+    /// Given a prompt, the model will return one or more predicted completions, and can also return the probabilities of alternative tokens at each position.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if -
+    /// * _the requested model doesn't exist_
+    /// * _endpoint is unavailable_
+    /// * _deserialization of JSON Model data fails_
     #[tokio::main]
     pub async fn create_completion(
         &self,
