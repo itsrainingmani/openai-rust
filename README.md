@@ -9,8 +9,8 @@ An Wrapper library for the OpenAI API written in Rust
 
 - [x] List Models
 - [x] Retrieve Model
-- [ ] Create Completion | _in progress_
-- [ ] Create Chat completion
+- [x] Create Completion
+- [ ] Create Chat completion | _in progress_
 - [ ] Create Edit
 - [ ] Create Image
 
@@ -18,3 +18,7 @@ An Wrapper library for the OpenAI API written in Rust
 
 Some endpoints are easier than others to implement.
 I am going to start out with the `Models` and the `Completions` endpoints. But even before I get to actually implementing those, I have to figure a basic PoC of authenticating with the OpenAI API
+
+### ___March 20th___
+
+The `Completion` endpoint has been implemented. Although I probably need to test it more with different params and update the error message to be more descriptive
