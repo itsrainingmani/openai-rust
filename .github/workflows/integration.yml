@@ -1,10 +1,9 @@
-name: unit tests
+name: integration tests
 
 on:
   push:
-    branches: ['main']
-  pull_request:
-    branches: ['main']
+    tags:
+      - '*'
 
 env:
   CARGO_TERM_COLOR: always
@@ -17,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build
         run: cargo build --verbose
-      - name: Run Unit tests
+      - name: Run Integration tests
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: cargo test --lib --verbose
+        run: cargo test --test integration -- --test-threads=1 --verbose
