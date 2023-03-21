@@ -1,8 +1,10 @@
 pub mod construct;
 pub mod error;
+pub mod param;
 
-use construct::{CompletionParams, Model, ModelList};
+use construct::{Model, ModelList};
 use error::{OpenAIError, OpenAIResult};
+use param::CompletionParams;
 use reqwest::{
     self,
     header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -142,7 +144,15 @@ mod tests {
         let key = String::from("keystring");
         let client = Client::new(key);
 
-        println!("{:?}", client);
+        let test_config = Config {
+            openai_org: None,
+            openai_secret_key: String::from("keystring"),
+        };
+
+        assert_eq!(
+            test_config.openai_secret_key,
+            client.config.openai_secret_key
+        );
     }
 
     #[test]
