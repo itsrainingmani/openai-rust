@@ -22,7 +22,7 @@ pub struct OptParams {
     pub presence_penalty: f32,
     pub frequency_penalty: f32,
     pub best_of: usize,
-    pub user: Option<String>,
+    pub user: String,
 }
 
 impl Default for OptParams {
@@ -38,7 +38,7 @@ impl Default for OptParams {
             presence_penalty: 0.0,
             frequency_penalty: 0.0,
             best_of: 1,
-            user: None,
+            user: String::new(),
         }
     }
 }
@@ -59,7 +59,7 @@ mod tests {
 
         let completion_serialized = serde_json::to_string(&completion_params).unwrap();
 
-        let param_json = r#"{"model":"text-davinci-003","prompt":"Say this is a test","max_tokens":7,"temperature":0.0,"suffix":null,"top_p":1.0,"n":1,"stream":false,"logprobs":null,"echo":false,"stop":null,"presence_penalty":0.0,"frequency_penalty":0.0,"best_of":1,"user":null}"#;
+        let param_json = r#"{"model":"text-davinci-003","prompt":"Say this is a test","max_tokens":7,"temperature":0.0,"suffix":null,"top_p":1.0,"n":1,"stream":false,"logprobs":null,"echo":false,"stop":null,"presence_penalty":0.0,"frequency_penalty":0.0,"best_of":1,"user":""}"#;
 
         // println!("{}", params);
         assert_eq!(completion_serialized, param_json);
@@ -71,7 +71,7 @@ mod tests {
 
         let opt_serialized = serde_json::to_string(&opt_params).unwrap();
 
-        let opt_json = r#"{"suffix":null,"top_p":1.0,"n":1,"stream":false,"logprobs":null,"echo":false,"stop":null,"presence_penalty":0.0,"frequency_penalty":0.0,"best_of":1,"user":null}"#;
+        let opt_json = r#"{"suffix":null,"top_p":1.0,"n":1,"stream":false,"logprobs":null,"echo":false,"stop":null,"presence_penalty":0.0,"frequency_penalty":0.0,"best_of":1,"user":""}"#;
 
         assert_eq!(opt_serialized, opt_json);
     }
