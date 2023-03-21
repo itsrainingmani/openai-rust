@@ -2,7 +2,7 @@ pub mod construct;
 pub mod error;
 pub mod param;
 
-use construct::{Model, ModelList};
+use construct::{Completion, Model, ModelList};
 use error::{OpenAIError, OpenAIResult};
 use param::CompletionParams;
 use reqwest::{
@@ -112,7 +112,10 @@ impl Client {
     }
 
     #[tokio::main]
-    pub async fn create_completion(&self, completion_params: CompletionParams) -> OpenAIResult<()> {
+    pub async fn create_completion(
+        &self,
+        completion_params: CompletionParams,
+    ) -> OpenAIResult<Completion> {
         let completion_url = String::from("https://api.openai.com/v1/completions");
 
         let completion_body = serde_json::to_string(&completion_params)?;
@@ -125,7 +128,7 @@ impl Client {
             .await?;
 
         match resp.status() {
-            StatusCode::OK => todo!(),
+            StatusCode::OK => Ok(resp.json::<Completion>().await?),
             _ => Err(OpenAIError::APIError {
                 status_code: resp.status().to_string(),
                 message: format!("Completion"),
@@ -153,11 +156,5 @@ mod tests {
             test_config.openai_secret_key,
             client.config.openai_secret_key
         );
-    }
-
-    #[test]
-    fn test_auth_headers() {
-        let client = Client::new(String::from("test-key"));
-        println!("{:?}", client.http_client);
     }
 }

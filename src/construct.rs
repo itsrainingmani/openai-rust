@@ -44,17 +44,30 @@ pub struct Permission {
     pub is_blocking: bool,
 }
 
-// #[derive(Serialize, Deserialize, Debug)]
-// #[serde(transparent)]
-// pub struct PermissionList {
-//     pub list: Vec<Permission>,
-// }
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Usage {
     pub prompt_tokens: u16,
     pub completion_tokens: u16,
     pub total_tokens: u16,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Choice {
+    pub text: String,
+    pub index: usize,
+    pub logprobs: Option<usize>,
+    pub finish_reason: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Completion {
+    pub id: String,
+    pub object: String,
+    #[serde(with = "ts_seconds_option")]
+    pub created: Option<DateTime<Utc>>,
+    pub model: String,
+    pub choices: Vec<Choice>,
+    pub usage: Usage,
 }
 
 #[cfg(test)]
@@ -80,6 +93,38 @@ mod tests {
                 deserialized_usage_data.total_tokens
             ],
             vec![5, 7, 12]
+        );
+    }
+
+    #[test]
+    fn test_completion_deserialization() {
+        let completion_data = r#"
+        {
+            "id": "cmpl-6wNHLLAa4l0GkmSZHb3Y9wM9G6IWS",
+            "object": "text_completion",
+            "created": 1679370527,
+            "model": "text-davinci-003",
+            "choices": [
+                {
+                    "text": "\n\nThis is indeed a test",
+                    "index": 0,
+                    "logprobs": null,
+                    "finish_reason": "length"
+                }
+            ],
+            "usage": {
+                "prompt_tokens": 5,
+                "completion_tokens": 7,
+                "total_tokens": 12
+            }
+        }"#;
+
+        let deserialized_completion_data: Completion =
+            serde_json::from_str(completion_data).unwrap();
+
+        assert_eq!(
+            deserialized_completion_data.choices.get(0).unwrap().text,
+            "\n\nThis is indeed a test"
         );
     }
 }
