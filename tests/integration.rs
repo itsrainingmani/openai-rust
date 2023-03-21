@@ -48,3 +48,19 @@ fn test_invalid_model() {
         resp.unwrap_err().to_string()
     )
 }
+
+#[test]
+fn test_create_completion() {
+    let client = common::setup();
+    let completion_params: openai_rust::param::CompletionParams =
+        openai_rust::param::CompletionParams {
+            model: String::from("text-davinci-003"),
+            prompt: String::from("Say this is a test"),
+            max_tokens: 7,
+            temperature: 0.0,
+            opts: openai_rust::param::OptParams::default(),
+        };
+
+    let resp = client.create_completion(completion_params);
+    assert!(resp.is_ok());
+}
