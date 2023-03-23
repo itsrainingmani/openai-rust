@@ -3,7 +3,7 @@ pub mod error;
 pub mod param;
 
 use construct::{Completion, Model, ModelList};
-use error::{OpenAIError, OpenAIResult};
+use error::{construct_error_msg, APIError, APIErrorData, OpenAIError, OpenAIResult};
 use param::CompletionParams;
 use reqwest::{
     self,
@@ -73,16 +73,22 @@ impl Client {
     #[tokio::main]
     pub async fn get_models(&self) -> OpenAIResult<ModelList> {
         let model_url = String::from("https://api.openai.com/v1/models");
-
         let resp = self.http_client.get(model_url.clone()).send().await?;
 
-        match resp.status() {
-            StatusCode::OK => Ok(resp.json::<ModelList>().await?),
-            _ => Err(OpenAIError::APIError {
-                status_code: resp.status().to_string(),
-                message: String::from("Model List"),
-                url: model_url,
-            }),
+        if resp.status() == StatusCode::OK {
+            Ok(resp.json::<ModelList>().await?)
+        } else {
+            let err_code = resp.status();
+            let err_data: APIErrorData = resp.json::<APIError>().await?.into();
+            let err_msg = construct_error_msg(err_code.to_string().clone(), err_data);
+
+            match err_code {
+                StatusCode::NOT_FOUND => Err(OpenAIError::InternalAPIError(err_msg)),
+                StatusCode::UNAUTHORIZED => Err(OpenAIError::AuthenticationError(err_msg)),
+                StatusCode::TOO_MANY_REQUESTS => Err(OpenAIError::RateLimitError(err_msg)),
+                StatusCode::INTERNAL_SERVER_ERROR => Err(OpenAIError::ServerError(err_msg)),
+                _ => Err(OpenAIError::OtherError(err_msg)),
+            }
         }
     }
 
@@ -101,13 +107,20 @@ impl Client {
         // Break out Response into the sending request part and the parsing Json part
         let resp = self.http_client.get(model_url.clone()).send().await?;
 
-        match resp.status() {
-            StatusCode::OK => Ok(resp.json::<Model>().await?),
-            _ => Err(OpenAIError::APIError {
-                status_code: resp.status().to_string(),
-                message: format!("Model - {}", model),
-                url: model_url,
-            }),
+        if resp.status() == StatusCode::OK {
+            Ok(resp.json::<Model>().await?)
+        } else {
+            let err_code = resp.status();
+            let err_data: APIErrorData = resp.json::<APIError>().await?.into();
+            let err_msg = construct_error_msg(err_code.to_string().clone(), err_data);
+
+            match err_code {
+                StatusCode::NOT_FOUND => Err(OpenAIError::InternalAPIError(err_msg)),
+                StatusCode::UNAUTHORIZED => Err(OpenAIError::AuthenticationError(err_msg)),
+                StatusCode::TOO_MANY_REQUESTS => Err(OpenAIError::RateLimitError(err_msg)),
+                StatusCode::INTERNAL_SERVER_ERROR => Err(OpenAIError::ServerError(err_msg)),
+                _ => Err(OpenAIError::OtherError(err_msg)),
+            }
         }
     }
 
@@ -135,13 +148,20 @@ impl Client {
             .send()
             .await?;
 
-        match resp.status() {
-            StatusCode::OK => Ok(resp.json::<Completion>().await?),
-            _ => Err(OpenAIError::APIError {
-                status_code: resp.status().to_string(),
-                message: format!("Completion"),
-                url: completion_url,
-            }),
+        if resp.status() == StatusCode::OK {
+            Ok(resp.json::<Completion>().await?)
+        } else {
+            let err_code = resp.status();
+            let err_data: APIErrorData = resp.json::<APIError>().await?.into();
+            let err_msg = construct_error_msg(err_code.to_string().clone(), err_data);
+
+            match err_code {
+                StatusCode::NOT_FOUND => Err(OpenAIError::InternalAPIError(err_msg)),
+                StatusCode::UNAUTHORIZED => Err(OpenAIError::AuthenticationError(err_msg)),
+                StatusCode::TOO_MANY_REQUESTS => Err(OpenAIError::RateLimitError(err_msg)),
+                StatusCode::INTERNAL_SERVER_ERROR => Err(OpenAIError::ServerError(err_msg)),
+                _ => Err(OpenAIError::OtherError(err_msg)),
+            }
         }
     }
 }
