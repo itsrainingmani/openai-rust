@@ -3,34 +3,57 @@ use thiserror::Error;
 
 pub type OpenAIResult<T> = Result<T, OpenAIError>;
 
+pub fn construct_error_msg(status_code: String, err_data: APIErrorData) -> String {
+    format!(
+        "[{}] | [{}] \n [{}]",
+        status_code, err_data.message, err_data.kind
+    )
+}
+
 #[derive(Error, Debug)]
 pub enum OpenAIError {
-    #[error("Error -> Status: [{status_code}] | Message: [{message}] \n URL: [{url}]")]
-    APIError {
-        status_code: String,
-        message: String,
-        url: String,
-    },
-    #[error("Unable to process request")]
+    #[error("Internal API Error: {0}")]
+    InternalAPIError(String),
+    #[error("Error: {0}")]
+    AuthenticationError(String),
+    #[error("Rate Limit Error: {0}")]
+    RateLimitError(String),
+    #[error("Server Error: {0}")]
+    ServerError(String),
+    #[error("Other Error: {0}")]
+    OtherError(String),
+    #[error("Unable to process request: {0}")]
     RequestError(#[from] reqwest::Error),
-    #[error("Unable to parse response into valid JSON")]
+    #[error("Unable to parse response into valid JSON: {0}")]
     ParseError(#[from] serde_json::Error),
-    #[error("Other Error happened")]
-    OtherError,
+    #[error("Unknown Error happened")]
+    UnknownError,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct APIError {
+    pub error: APIErrorData,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(from = "APIError")]
 pub struct APIErrorData {
-    pub error: APIErrorSubfields,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct APIErrorSubfields {
     pub message: String,
     #[serde(rename = "type")]
     pub kind: String,
     pub param: Option<String>,
     pub code: Option<String>,
+}
+
+impl From<APIError> for APIErrorData {
+    fn from(value: APIError) -> Self {
+        APIErrorData {
+            message: value.error.message.clone(),
+            kind: value.error.kind.clone(),
+            param: value.error.param.clone(),
+            code: value.error.param.clone(),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -50,7 +73,7 @@ mod tests {
         }
         "#;
 
-        let de_error: APIErrorData = serde_json::from_str(error_data).expect("Deserialize failed");
+        let de_error: APIError = serde_json::from_str(error_data).expect("Deserialize failed");
 
         assert_eq!(
             de_error.error.message,
@@ -74,7 +97,7 @@ mod tests {
         }
         "#;
 
-        let de_error: APIErrorData = serde_json::from_str(error_data).expect("Deserialize failed");
+        let de_error: APIError = serde_json::from_str(error_data).expect("Deserialize failed");
 
         assert_eq!(
             de_error.error.message,
@@ -83,5 +106,24 @@ mod tests {
         assert_eq!(de_error.error.kind, String::from("invalid_request_error"));
         assert_eq!(de_error.error.code, None);
         assert_eq!(de_error.error.param, None);
+    }
+
+    #[test]
+    fn test_api_error_from() {
+        let error_data = r#"
+        {
+            "error": {
+                "message": "The model 'text-davinci-007' does not exist",
+                "type": "invalid_request_error",
+                "param": null,
+                "code": null
+            }
+        }
+        "#;
+
+        let de_error_sub =
+            serde_json::from_str::<APIErrorData>(error_data).expect("Deserialize failed");
+
+        println!("{:?}", de_error_sub);
     }
 }
