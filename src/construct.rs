@@ -1,8 +1,8 @@
 use chrono::serde::ts_seconds_option;
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct ModelList {
     pub data: Vec<Model>,
     pub object: String,
@@ -15,7 +15,7 @@ pub struct ModelList {
 /// "owned_by": "organization-owner",
 /// "permission": [...]
 /// }
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct Model {
     pub id: String,
     pub object: String,
@@ -27,7 +27,7 @@ pub struct Model {
     parent: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct Permission {
     pub id: String,
     pub object: String,
@@ -44,14 +44,14 @@ pub struct Permission {
     pub is_blocking: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct Usage {
     pub prompt_tokens: u16,
     pub completion_tokens: u16,
     pub total_tokens: u16,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct Choice {
     pub text: String,
     pub index: usize,
@@ -59,7 +59,7 @@ pub struct Choice {
     pub finish_reason: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct Completion {
     pub id: String,
     pub object: String,
@@ -69,6 +69,14 @@ pub struct Completion {
     pub choices: Vec<Choice>,
     pub usage: Usage,
 }
+
+// TODO
+#[derive(Deserialize, Debug)]
+pub struct ChatCompletion {}
+
+// TODO
+#[derive(Deserialize, Debug)]
+pub struct EditedPrompt {}
 
 #[cfg(test)]
 mod tests {

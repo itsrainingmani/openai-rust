@@ -2,9 +2,9 @@ pub mod construct;
 pub mod error;
 pub mod param;
 
-use construct::{Completion, Model, ModelList};
+use construct::{ChatCompletion, Completion, EditedPrompt, Model, ModelList};
 use error::{construct_error_msg, APIError, APIErrorData, OpenAIError, OpenAIResult};
-use param::CompletionParams;
+use param::{ChatParams, CompletionParams, EditParams};
 use reqwest::{
     self,
     header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -163,6 +163,19 @@ impl Client {
                 _ => Err(OpenAIError::OtherError(err_msg)),
             }
         }
+    }
+
+    #[tokio::main]
+    pub async fn create_chat_completion(
+        &self,
+        _chat_params: ChatParams,
+    ) -> OpenAIResult<ChatCompletion> {
+        todo!()
+    }
+
+    #[tokio::main]
+    pub async fn edit_prompt(&self, _edit_params: EditParams) -> OpenAIResult<EditedPrompt> {
+        todo!()
     }
 }
 

@@ -25,6 +25,14 @@ pub struct OptParams {
     pub user: String,
 }
 
+// TODO
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ChatParams {}
+
+// TODO
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EditParams {}
+
 impl Default for OptParams {
     fn default() -> Self {
         Self {
