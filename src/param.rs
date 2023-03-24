@@ -29,9 +29,34 @@ pub struct OptParams {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ChatParams {}
 
-// TODO
+/// Only use text-davinci-edit-001 or code-davinci-edit-001 models with this endpoint
 #[derive(Serialize, Deserialize, Debug)]
-pub struct EditParams {}
+pub struct EditParams {
+    pub model: String,
+    pub input: String,
+    pub instruction: String,
+
+    #[serde(flatten)]
+    pub opts: OptEditParams,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OptEditParams {
+    #[serde(rename = "n")]
+    pub num_edits: usize,
+    pub temperature: f32,
+    pub top_p: usize,
+}
+
+impl Default for OptEditParams {
+    fn default() -> Self {
+        Self {
+            num_edits: 1,
+            temperature: 1.0,
+            top_p: 1,
+        }
+    }
+}
 
 impl Default for OptParams {
     fn default() -> Self {
@@ -82,5 +107,22 @@ mod tests {
         let opt_json = r#"{"suffix":null,"top_p":1.0,"n":1,"stream":false,"logprobs":null,"echo":false,"stop":null,"presence_penalty":0.0,"frequency_penalty":0.0,"best_of":1,"user":""}"#;
 
         assert_eq!(opt_serialized, opt_json);
+    }
+
+    #[test]
+    fn test_edit_params() {
+        let opt_params: OptEditParams = OptEditParams::default();
+        let edit_params: EditParams = EditParams {
+            model: String::from("text-davinci-edit-001"),
+            input: String::from("What day of the wek is it?"),
+            instruction: String::from("Fix the spelling mistakes"),
+            opts: opt_params,
+        };
+
+        let params_serialized = serde_json::to_string(&edit_params).unwrap();
+
+        let params_json = r#"{"model":"text-davinci-edit-001","input":"What day of the wek is it?","instruction":"Fix the spelling mistakes","n":1,"temperature":1.0,"top_p":1}"#;
+
+        assert_eq!(params_serialized, params_json);
     }
 }
