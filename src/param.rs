@@ -25,9 +25,39 @@ pub struct OptParams {
     pub user: String,
 }
 
-// TODO
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ChatParams {}
+pub struct ChatParams {
+    pub model: String,
+    pub messages: Vec<Message>,
+    #[serde(flatten)]
+    pub opt: OptChatParams,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
+pub struct Message {
+    pub role: Role,
+    pub content: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum Role {
+    User,
+    System,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OptChatParams {
+    pub temperature: f32,
+    pub top_p: f32,
+    pub n: usize,
+    pub stream: bool,
+    pub stop: Option<String>,
+    pub max_tokens: Option<u64>,
+    pub presence_penalty: f32,
+    pub frequency_penalty: f32,
+    pub user: String,
+}
 
 /// Only use text-davinci-edit-001 or code-davinci-edit-001 models with this endpoint
 #[derive(Serialize, Deserialize, Debug)]
