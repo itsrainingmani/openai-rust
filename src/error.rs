@@ -73,15 +73,17 @@ mod tests {
         }
         "#;
 
-        let de_error: APIError = serde_json::from_str(error_data).expect("Deserialize failed");
+        let de_error: APIErrorData = serde_json::from_str::<APIError>(error_data)
+            .expect("Deserialize failed")
+            .into();
 
         assert_eq!(
-            de_error.error.message,
+            de_error.message,
             String::from("The model 'text-davinci-007' does not exist")
         );
-        assert_eq!(de_error.error.kind, String::from("invalid_request_error"));
-        assert_eq!(de_error.error.code, Some(String::from("model")));
-        assert_eq!(de_error.error.param, Some(String::from("model_not_found")));
+        assert_eq!(de_error.kind, String::from("invalid_request_error"));
+        assert_eq!(de_error.code, Some(String::from("model")));
+        assert_eq!(de_error.param, Some(String::from("model_not_found")));
     }
 
     #[test]
@@ -97,33 +99,16 @@ mod tests {
         }
         "#;
 
-        let de_error: APIError = serde_json::from_str(error_data).expect("Deserialize failed");
+        let de_error: APIErrorData = serde_json::from_str::<APIError>(error_data)
+            .expect("Deserialize failed")
+            .into();
 
         assert_eq!(
-            de_error.error.message,
+            de_error.message,
             String::from("The model 'text-davinci-007' does not exist")
         );
-        assert_eq!(de_error.error.kind, String::from("invalid_request_error"));
-        assert_eq!(de_error.error.code, None);
-        assert_eq!(de_error.error.param, None);
-    }
-
-    #[test]
-    fn test_api_error_from() {
-        let error_data = r#"
-        {
-            "error": {
-                "message": "The model 'text-davinci-007' does not exist",
-                "type": "invalid_request_error",
-                "param": null,
-                "code": null
-            }
-        }
-        "#;
-
-        let de_error_sub =
-            serde_json::from_str::<APIErrorData>(error_data).expect("Deserialize failed");
-
-        println!("{:?}", de_error_sub);
+        assert_eq!(de_error.kind, String::from("invalid_request_error"));
+        assert_eq!(de_error.code, None);
+        assert_eq!(de_error.param, None);
     }
 }
