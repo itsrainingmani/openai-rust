@@ -4,14 +4,14 @@ use serde::{Deserialize, Serialize};
 pub struct CompletionParams {
     pub model: String,
     pub prompt: String,
-    pub max_tokens: usize,
-    pub temperature: f32,
     #[serde(flatten)]
     pub opts: OptParams,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OptParams {
+    pub max_tokens: usize,
+    pub temperature: f32,
     pub suffix: Option<String>,
     pub top_p: f32,
     pub n: usize,
@@ -91,6 +91,8 @@ impl Default for OptEditParams {
 impl Default for OptParams {
     fn default() -> Self {
         Self {
+            max_tokens: 16,
+            temperature: 1.0,
             suffix: None,
             top_p: 1.0,
             n: 1,
@@ -112,12 +114,15 @@ mod tests {
 
     #[test]
     fn test_completion_serialization() {
+        let opt_params = OptParams {
+            max_tokens: 7,
+            temperature: 0.0,
+            ..Default::default()
+        };
         let completion_params: CompletionParams = CompletionParams {
             model: String::from("text-davinci-003"),
             prompt: String::from("Say this is a test"),
-            max_tokens: 7,
-            temperature: 0.0,
-            opts: OptParams::default(),
+            opts: opt_params,
         };
 
         let completion_serialized = serde_json::to_string(&completion_params).unwrap();
@@ -134,7 +139,7 @@ mod tests {
 
         let opt_serialized = serde_json::to_string(&opt_params).unwrap();
 
-        let opt_json = r#"{"suffix":null,"top_p":1.0,"n":1,"stream":false,"logprobs":null,"echo":false,"stop":null,"presence_penalty":0.0,"frequency_penalty":0.0,"best_of":1,"user":""}"#;
+        let opt_json = r#"{"max_tokens":16,"temperature":1.0,"suffix":null,"top_p":1.0,"n":1,"stream":false,"logprobs":null,"echo":false,"stop":null,"presence_penalty":0.0,"frequency_penalty":0.0,"best_of":1,"user":""}"#;
 
         assert_eq!(opt_serialized, opt_json);
     }
