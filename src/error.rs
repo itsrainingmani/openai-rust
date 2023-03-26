@@ -36,7 +36,6 @@ pub struct APIError {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(from = "APIError")]
 pub struct APIErrorData {
     pub message: String,
     #[serde(rename = "type")]
@@ -51,7 +50,7 @@ impl From<APIError> for APIErrorData {
             message: value.error.message.clone(),
             kind: value.error.kind.clone(),
             param: value.error.param.clone(),
-            code: value.error.param.clone(),
+            code: value.error.code.clone(),
         }
     }
 }
@@ -82,8 +81,8 @@ mod tests {
             String::from("The model 'text-davinci-007' does not exist")
         );
         assert_eq!(de_error.kind, String::from("invalid_request_error"));
-        assert_eq!(de_error.code, Some(String::from("model")));
-        assert_eq!(de_error.param, Some(String::from("model_not_found")));
+        assert_eq!(de_error.param, Some(String::from("model")));
+        assert_eq!(de_error.code, Some(String::from("model_not_found")));
     }
 
     #[test]
