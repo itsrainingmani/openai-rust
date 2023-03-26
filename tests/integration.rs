@@ -43,10 +43,8 @@ fn test_invalid_model() {
 
     // println!("{}", resp.unwrap_err().to_string());
 
-    assert_eq!(
-        "Request returned with Status: 404 Not Found for Model - chatgpt \n URL: https://api.openai.com/v1/models/chatgpt",
-        resp.unwrap_err().to_string()
-    )
+    assert!(resp.is_err());
+    assert_eq!("Internal API Error: [404 Not Found] | [The model 'chatgpt' does not exist] \n [invalid_request_error]", resp.unwrap_err().to_string())
 }
 
 #[test]
@@ -56,8 +54,6 @@ fn test_create_completion() {
         openai_rust::param::CompletionParams {
             model: String::from("text-davinci-003"),
             prompt: String::from("Say this is a test"),
-            max_tokens: 7,
-            temperature: 0.0,
             opts: openai_rust::param::OptParams::default(),
         };
 
