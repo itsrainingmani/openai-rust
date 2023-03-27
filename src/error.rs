@@ -3,13 +3,6 @@ use thiserror::Error;
 
 pub type OpenAIResult<T> = Result<T, OpenAIError>;
 
-pub fn construct_error_msg(status_code: String, err_data: APIErrorData) -> String {
-    format!(
-        "[{}] | [{}] \n [{}]",
-        status_code, err_data.message, err_data.kind
-    )
-}
-
 #[derive(Error, Debug)]
 pub enum OpenAIError {
     #[error("Internal API Error: {0}")]
@@ -52,6 +45,12 @@ impl From<APIError> for APIErrorData {
             param: value.error.param.clone(),
             code: value.error.code.clone(),
         }
+    }
+}
+
+impl APIErrorData {
+    pub fn construct_error_msg(&self, status_code: String) -> String {
+        format!("[{}] | [{}] \n [{}]", status_code, self.message, self.kind)
     }
 }
 

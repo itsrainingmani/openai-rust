@@ -3,7 +3,7 @@ pub mod error;
 pub mod param;
 
 use construct::{ChatCompletion, Completion, EditedPrompt, Model, ModelList};
-use error::{construct_error_msg, APIError, APIErrorData, OpenAIError, OpenAIResult};
+use error::{APIError, APIErrorData, OpenAIError, OpenAIResult};
 use param::{ChatParams, CompletionParams, EditParams};
 use reqwest::{
     self,
@@ -80,7 +80,7 @@ impl Client {
         } else {
             let err_code = resp.status();
             let err_data: APIErrorData = resp.json::<APIError>().await?.into();
-            let err_msg = construct_error_msg(err_code.to_string().clone(), err_data);
+            let err_msg = err_data.construct_error_msg(err_code.to_string().clone());
 
             match err_code {
                 StatusCode::NOT_FOUND => Err(OpenAIError::InternalAPIError(err_msg)),
@@ -112,7 +112,7 @@ impl Client {
         } else {
             let err_code = resp.status();
             let err_data: APIErrorData = resp.json::<APIError>().await?.into();
-            let err_msg = construct_error_msg(err_code.to_string().clone(), err_data);
+            let err_msg = err_data.construct_error_msg(err_code.to_string().clone());
 
             match err_code {
                 StatusCode::NOT_FOUND => Err(OpenAIError::InternalAPIError(err_msg)),
@@ -153,7 +153,7 @@ impl Client {
         } else {
             let err_code = resp.status();
             let err_data: APIErrorData = resp.json::<APIError>().await?.into();
-            let err_msg = construct_error_msg(err_code.to_string().clone(), err_data);
+            let err_msg = err_data.construct_error_msg(err_code.to_string().clone());
 
             match err_code {
                 StatusCode::NOT_FOUND => Err(OpenAIError::InternalAPIError(err_msg)),
