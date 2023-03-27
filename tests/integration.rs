@@ -1,4 +1,4 @@
-use openai_rust;
+use openai_rust::{self, APIClient, APIMethods};
 
 mod common;
 
