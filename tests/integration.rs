@@ -1,4 +1,4 @@
-use openai_rust;
+use openai_rust::{self, Config};
 
 mod common;
 
@@ -7,7 +7,10 @@ fn test_config_org_and_key_validation() {
     let org = String::from("orgstring");
     let key = String::from("keystring");
 
-    let client = openai_rust::Client::new_with_org(key, org);
+    let client = openai_rust::Client::new(Config {
+        openai_secret_key: key.clone(),
+        openai_org: Some(org.clone()),
+    });
     assert_eq!(client.config.openai_secret_key, String::from("keystring"));
     assert_eq!(client.config.openai_org, Some(String::from("orgstring")));
 }

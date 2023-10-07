@@ -13,13 +13,17 @@ use reqwest::{
 
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
-#[derive(Debug)]
+// trait APIClientBuilder {
+//     fn api_url() -> String;
+// }
+
+#[derive(Default, Debug, Clone)]
 pub struct Config {
     pub openai_secret_key: String,
     pub openai_org: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Client {
     pub config: Config,
     http_client: reqwest::Client,
@@ -29,13 +33,15 @@ impl Client {
     /// Creates a new Client given a secret API key
     ///
     /// This function will panic if there isn't a valid TLS Backend / Resolver cannot load system config
-    pub fn new(key: String) -> Self {
+    pub fn new(config: Config) -> Self {
         let mut headers = HeaderMap::new();
-        let auth_token = format!("Bearer {}", key);
-        headers.insert(
-            AUTHORIZATION,
-            HeaderValue::from_str(auth_token.as_str()).unwrap(),
-        );
+        let auth_token = format!("Bearer {}", config.openai_secret_key);
+        headers.insert(AUTHORIZATION, auth_token.parse().unwrap());
+
+        // Only add this if the user provides an Organization String
+        if let Some(ref org_string) = config.openai_org {
+            headers.insert("OpenAI-Organization", org_string.parse().unwrap());
+        }
         headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
         let client = ClientBuilder::new()
             .default_headers(headers)
@@ -43,22 +49,10 @@ impl Client {
             .build()
             .expect("Expected a valid TLS Backend / Resolver");
 
-        let config = Config {
-            openai_secret_key: key,
-            openai_org: None,
-        };
-
         Client {
             config,
             http_client: client,
         }
-    }
-
-    /// Creates a new Client given an organization and the secret API key
-    pub fn new_with_org(key: String, organization: String) -> Self {
-        let mut cl = Client::new(key);
-        cl.config.openai_org = Some(organization);
-        cl
     }
 
     /// Lists the currently available models, and provides basic information about each one such as the owner and availability.
@@ -186,16 +180,36 @@ mod tests {
     #[test]
     fn test_config_creation() {
         let key = String::from("keystring");
-        let client = Client::new(key);
+        let client = Client::new(Config {
+            openai_secret_key: key.clone(),
+            ..Default::default()
+        });
 
         let test_config = Config {
+            openai_secret_key: key,
             openai_org: None,
-            openai_secret_key: String::from("keystring"),
         };
 
         assert_eq!(
             test_config.openai_secret_key,
             client.config.openai_secret_key
         );
+    }
+
+    #[test]
+    fn test_config_org_creation() {
+        let key = String::from("keystring");
+        let org = String::from("org-testing");
+        let client = Client::new(Config {
+            openai_secret_key: key.clone(),
+            openai_org: Some(org.clone()),
+        });
+
+        let test_config = Config {
+            openai_secret_key: key,
+            openai_org: Some(org),
+        };
+
+        assert_eq!(test_config.openai_org, client.config.openai_org);
     }
 }
